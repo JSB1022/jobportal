@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+
+<link rel="stylesheet" th:href="@{/css/style.css}">
+
+</head>
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">
+        <h2>JobPortal</h2>
+    </div>
+
+    <a href="/dashboard">🏠 Dashboard</a>
+
+    <a href="/jobs-page">💼 Available Jobs</a>
+
+    <a href="/my-applications">📄 My Applications</a>
+
+    <a href="/profile">👤 Profile</a>
+
+    <a href="/logout">🚪 Logout</a>
+
+</div>
+
+<div class="main">
+
+    <div class="topbar">
+
+        <h2>
+            Welcome,
+            <span th:text="${user.name}"></span> 👋
+        </h2>
+
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>💼 Jobs</h3>
+            <p>Browse available jobs</p>
+            <a href="/jobs-page">Open</a>
+        </div>
+
+        <div class="card">
+            <h3>📄 Applications</h3>
+            <p>Track your applications</p>
+            <a href="/my-applications">Open</a>
+        </div>
+
+        <div class="card">
+            <h3>👤 Profile</h3>
+            <p>View your profile</p>
+            <a href="/profile">Open</a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

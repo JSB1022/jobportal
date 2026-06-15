@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile — Job Portal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <style>
+    .edit-toggle { display: none; }
+    .view-mode .edit-form  { display: none; }
+    .view-mode .view-info  { display: block; }
+    .edit-mode .edit-form  { display: block; }
+    .edit-mode .view-info  { display: none; }
+  </style>
+</head>
+<body>
+
+  <div th:replace="~{nav-fragment :: nav}"></div>
+
+  <div class="page-hero">
+    <h1>My Profile</h1>
+    <p>View and update your account information</p>
+  </div>
+
+  <div class="page-body">
+    <div class="profile-wrap">
+
+      <!-- ── PROFILE HEADER ── -->
+      <div class="profile-header-card">
+        <div class="profile-big-avatar"
+             th:text="${#strings.substring(user.name, 0, 1).toUpperCase()}">U</div>
+        <div class="profile-header-info">
+          <h2 th:text="${user.name}">Full Name</h2>
+          <p th:text="${user.email}">email@example.com</p>
+          <div class="profile-role-pill">
+            <span th:text="${user.role == 'RECRUITER'} ? '🏢 Recruiter' : '🔍 Job Seeker'">Role</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- success / error flash -->
+      <div class="alert alert-success" th:if="${param.updated}" style="margin-bottom:20px;">
+        ✅ Profile updated successfully!
+      </div>
+      <div class="alert alert-error" th:if="${param.error}" style="margin-bottom:20px;">
+        ❌ Something went wrong. Please try again.
+      </div>
+
+      <!-- ── PROFILE CARD ── -->
+      <div class="card" id="profileCard">
+
+        <!-- ── VIEW MODE ── -->
+        <div class="view-info">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <h2 style="font-size:1.1rem;font-weight:700;color:var(--slate-900);">Account Details</h2>
+            <button onclick="switchToEdit()" class="btn btn-outline btn-sm">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5m-1.414-9.414a2 2 0 0 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              Edit Profile
+            </button>
+          </div>
+
+          <div style="display:grid;gap:18px;">
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div>
+                <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-400);margin-bottom:4px;">Full Name</div>
+                <div style="font-size:.95rem;font-weight:600;color:var(--slate-900);" th:text="${user.name}">—</div>
+              </div>
+              <div>
+                <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-400);margin-bottom:4px;">Email</div>
+                <div style="font-size:.95rem;color:var(--slate-700);" th:text="${user.email}">—</div>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div>
+                <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-400);margin-bottom:4px;">Account Type</div>
+                <span class="badge"
+                      th:classappend="${user.role == 'RECRUITER'} ? 'badge-indigo' : 'badge-green'"
+                      th:text="${user.role}">ROLE</span>
+              </div>
+              <div>
+                <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-400);margin-bottom:4px;">Password</div>
+                <div style="font-size:.95rem;color:var(--slate-700);">••••••••</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── EDIT MODE ── -->
+        <div class="edit-form" style="display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <h2 style="font-size:1.1rem;font-weight:700;color:var(--slate-900);">Edit Account Details</h2>
+            <button onclick="switchToView()" class="btn btn-outline btn-sm" type="button">Cancel</button>
+          </div>
+
+          <form th:action="@{/update-profile}" method="post">
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" th:value="${user.name}" required>
+              </div>
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" th:value="${user.email}" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="password">New Password <span style="color:var(--slate-400);font-weight:400;">(leave blank to keep current)</span></label>
+              <input type="password" id="password" name="password" placeholder="Enter new password">
+            </div>
+
+            <div class="form-group">
+              <label for="role">Account Type</label>
+              <select id="role" name="role">
+                <option value="JOBSEEKER" th:selected="${user.role == 'JOBSEEKER'}">Job Seeker</option>
+                <option value="RECRUITER" th:selected="${user.role == 'RECRUITER'}">Recruiter</option>
+              </select>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:8px;">
+              <button type="submit" class="btn btn-primary" style="flex:1;">Save Changes</button>
+              <button type="button" onclick="switchToView()" class="btn btn-outline">Cancel</button>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+
+      <!-- ── QUICK LINKS ── -->
+      <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
+        <a th:href="${session.userRole == 'RECRUITER'} ? '/recruiter-dashboard' : '/jobs-page'"
+           class="btn btn-outline" style="flex:1;justify-content:center;">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span th:text="${session.userRole == 'RECRUITER'} ? 'Go to Dashboard' : 'Browse Jobs'">Dashboard</span>
+        </a>
+        <a href="/logout" class="btn" style="flex:1;justify-content:center;background:var(--red-dim);color:var(--red);border:1px solid #fca5a5;">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1"/></svg>
+          Sign Out
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function switchToEdit() {
+      document.querySelector('.view-info').style.display = 'none';
+      document.querySelector('.edit-form').style.display = 'block';
+    }
+    function switchToView() {
+      document.querySelector('.view-info').style.display = 'block';
+      document.querySelector('.edit-form').style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>

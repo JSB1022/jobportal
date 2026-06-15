@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recruiter Dashboard — Job Portal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+  <!-- NAV -->
+  <div th:replace="~{nav-fragment :: nav}"></div>
+
+  <!-- HERO BAND -->
+  <div class="page-hero">
+    <h1>Recruiter Dashboard</h1>
+    <p th:text="'Welcome back, ' + ${session.userName} + '! Manage your job postings and applicants.'"></p>
+  </div>
+
+  <div class="page-body">
+
+    <!-- ── STAT CARDS ── -->
+    <div class="dash-stats">
+
+      <div class="stat-card accent-indigo">
+        <div class="stat-label">Jobs Posted</div>
+        <div class="stat-value" th:text="${jobs.size()}">0</div>
+        <div class="stat-sub">active listings</div>
+      </div>
+
+      <div class="stat-card accent-amber">
+        <div class="stat-label">Total Applications</div>
+        <div class="stat-value" th:text="${totalApplications}">0</div>
+        <div class="stat-sub">across all jobs</div>
+      </div>
+
+      <div class="stat-card accent-green">
+        <div class="stat-label">Accepted</div>
+        <div class="stat-value" th:text="${totalAccepted}">0</div>
+        <div class="stat-sub">candidates</div>
+      </div>
+
+      <div class="stat-card accent-red">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-value" th:text="${totalPending}">0</div>
+        <div class="stat-sub">awaiting decision</div>
+      </div>
+
+    </div>
+
+    <!-- ── TOOLBAR ── -->
+    <div class="toolbar">
+      <div>
+        <h2>Your Job Listings</h2>
+        <p>Click a job to see who applied</p>
+      </div>
+      <a href="/post-job" class="btn btn-primary">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" d="M12 5v14M5 12h14"/>
+        </svg>
+        Post New Job
+      </a>
+    </div>
+
+    <!-- ── EMPTY STATE ── -->
+    <div class="empty-state" th:if="${jobs.isEmpty()}">
+      <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <rect x="2" y="7" width="20" height="14" rx="2"/>
+        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+      </svg>
+      <h3>No jobs posted yet</h3>
+      <p>Post your first job opening to start receiving applications.</p>
+      <a href="/post-job" class="btn btn-primary" style="margin-top:18px;">Post a Job</a>
+    </div>
+
+    <!-- ── JOB ACCORDION ── -->
+    <div class="job-accordion" th:if="${!jobs.isEmpty()}">
+
+      <div class="job-section" th:each="job : ${jobs}" th:id="'job-' + ${job.id}">
+
+        <!-- Header (clickable) -->
+        <div class="job-section-header" th:onclick="'toggleJob(' + ${job.id} + ')'">
+
+          <div class="job-section-title">
+            <div class="nav-avatar" style="background:var(--indigo-dim);color:var(--indigo);border-radius:10px;font-size:.8rem;">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+              </svg>
+            </div>
+            <div>
+              <h3 th:text="${job.title}">Job Title</h3>
+              <div class="job-section-meta">
+                <span>
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 21l1.9-5.7A8.5 8.5 0 1 1 21 12"/></svg>
+                  <span th:text="${job.company}">Company</span>
+                </span>
+                <span>
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span th:text="${job.location}">Location</span>
+                </span>
+                <span>
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  <span th:text="${job.salary}">Salary</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="job-section-actions">
+            <span class="badge badge-indigo"
+                  th:text="${applicationsByJob[job.id] != null ? applicationsByJob[job.id].size() : 0} + ' applicants'"></span>
+            <!-- Delete job -->
+            <form th:action="@{/delete-job/{id}(id=${job.id})}" method="post"
+                  onsubmit="return confirm('Delete this job? All applications will also be removed.')">
+              <button type="submit" class="btn btn-sm"
+                      style="background:var(--red-dim);color:var(--red);border:1px solid #fca5a5;" title="Delete job">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <polyline points="3 6 5 6 21 6"/><path stroke-linecap="round" d="M19 6l-1 14H6L5 6"/>
+                  <path stroke-linecap="round" d="M10 11v6M14 11v6M9 6V4h6v2"/>
+                </svg>
+              </button>
+            </form>
+            <svg class="chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" d="M6 9l6 6 6-6"/>
+            </svg>
+          </div>
+
+        </div>
+
+        <!-- Body: applicant list -->
+        <div class="job-section-body" th:id="'body-' + ${job.id}">
+
+          <!-- No applicants -->
+          <div class="no-applicants"
+               th:if="${applicationsByJob[job.id] == null or applicationsByJob[job.id].isEmpty()}">
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="opacity:.35;margin-bottom:8px">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+            <p>No applications yet for this role.</p>
+          </div>
+
+          <!-- Applicant rows -->
+          <div th:each="app : ${applicationsByJob[job.id]}" class="applicant-row">
+
+            <!-- Avatar -->
+            <div class="applicant-avatar"
+                 th:text="${app.user != null ? #strings.substring(app.user.name,0,1).toUpperCase() : '?'}">U</div>
+
+            <!-- Info -->
+            <div class="applicant-info">
+              <div class="name" th:text="${app.user != null ? app.user.name : 'Unknown'}">Name</div>
+              <div class="email" th:text="${app.user != null ? app.user.email : ''}">email</div>
+            </div>
+
+            <!-- Status badge -->
+            <span class="badge"
+                  th:classappend="${app.status == 'ACCEPTED'} ? 'badge-accepted' : (${app.status == 'REJECTED'} ? 'badge-rejected' : 'badge-pending')"
+                  th:text="${app.status}">PENDING</span>
+
+            <!-- Accept / Reject actions (only show when pending) -->
+            <div class="applicant-actions" th:if="${app.status == 'PENDING'}">
+              <form th:action="@{/application/{id}/accept(id=${app.id})}" method="post">
+                <button type="submit" class="btn btn-sm btn-accept">✓ Accept</button>
+              </form>
+              <form th:action="@{/application/{id}/reject(id=${app.id})}" method="post">
+                <button type="submit" class="btn btn-sm btn-reject">✕ Reject</button>
+              </form>
+            </div>
+
+            <!-- Already decided -->
+            <div th:if="${app.status != 'PENDING'}" style="font-size:.78rem;color:var(--slate-400);">
+              Decision recorded
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /page-body -->
+
+  <script>
+    function toggleJob(id) {
+      const section = document.getElementById('job-' + id);
+      section.classList.toggle('open');
+    }
+
+    // Auto-open first job on load if there is one
+    document.addEventListener('DOMContentLoaded', () => {
+      const first = document.querySelector('.job-section');
+      if (first) first.classList.add('open');
+    });
+  </script>
+
+</body>
+</html>

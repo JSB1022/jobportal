@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--
+  This file is NOT rendered directly.
+  It holds the shared nav fragment included in every page via:
+    <div th:replace="~{nav-fragment :: nav}"></div>
+-->
+<body>
+
+<nav class="nav" th:fragment="nav">
+  <div class="nav-inner">
+
+    <!-- Brand -->
+    <a href="/" class="nav-brand">
+      <div class="logo-icon">💼</div>
+      <span>JobPortal</span>
+    </a>
+
+    <!-- Links -->
+    <ul class="nav-links">
+
+      <!-- RECRUITER links -->
+      <th:block th:if="${session.userRole == 'RECRUITER'}">
+        <li><a href="/recruiter-dashboard">Dashboard</a></li>
+        <li><a href="/post-job">Post a Job</a></li>
+        <li><a href="/applications-page">All Applications</a></li>
+      </th:block>
+
+      <!-- JOB SEEKER links -->
+      <th:block th:if="${session.userRole == 'JOBSEEKER'}">
+        <li><a href="/jobs-page">Browse Jobs</a></li>
+        <li><a href="/my-applications">My Applications</a></li>
+      </th:block>
+
+      <!-- Public links (not logged in) -->
+      <th:block th:if="${session.userId == null}">
+        <li><a href="/jobs-page">Browse Jobs</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/register" class="btn-nav">Register</a></li>
+      </th:block>
+
+      <!-- Logged-in user: profile dropdown -->
+      <th:block th:if="${session.userId != null}">
+        <li class="nav-profile-wrap">
+          <a href="/profile" class="nav-profile">
+            <div class="nav-avatar" th:text="${#strings.substring(session.userName, 0, 1).toUpperCase()}">U</div>
+            <span th:text="${session.userName}">User</span>
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" d="M6 9l6 6 6-6"/></svg>
+          </a>
+          <div class="nav-dropdown">
+            <a href="/profile">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              My Profile
+            </a>
+            <a href="/logout" class="logout-link">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1"/></svg>
+              Sign Out
+            </a>
+          </div>
+        </li>
+      </th:block>
+
+    </ul>
+  </div>
+</nav>
+
+</body>
+</html>

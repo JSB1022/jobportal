@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Applications — Job Portal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <div th:replace="~{nav-fragment :: nav}"></div>
+
+  <!-- HERO BAND -->
+  <div class="page-hero">
+    <h1>All Applications</h1>
+    <p>Recruiter view — every submission across all job listings</p>
+  </div>
+
+  <!-- BODY -->
+  <div class="page-body">
+
+    <!-- toolbar -->
+    <div class="toolbar">
+      <div>
+        <h2>Submissions</h2>
+        <p th:text="${applications.size()} + ' total applications'"></p>
+      </div>
+      <a href="/post-job" class="btn btn-primary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+        Post a Job
+      </a>
+    </div>
+
+    <!-- empty state -->
+    <div class="empty-state" th:if="${applications.isEmpty()}">
+      <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path d="M9 12h6M9 16h6M7 8h.01M5 20h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/>
+      </svg>
+      <h3>No applications yet</h3>
+      <p>Applications will show here once candidates start applying.</p>
+    </div>
+
+    <!-- table -->
+    <div class="table-wrap" th:if="${!applications.isEmpty()}">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Applicant</th>
+            <th>Email</th>
+            <th>Job Title</th>
+            <th>Company</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="app : ${applications}">
+            <td>
+              <span class="badge badge-indigo" th:text="'#' + ${app.id}"></span>
+            </td>
+            <td>
+              <span style="font-weight:600;color:var(--slate-900);"
+                    th:text="${app.user != null ? app.user.name : 'N/A'}"></span>
+            </td>
+            <td th:text="${app.user != null ? app.user.email : 'N/A'}"></td>
+            <td th:text="${app.job  != null ? app.job.title   : 'N/A'}"></td>
+            <td th:text="${app.job  != null ? app.job.company : 'N/A'}"></td>
+            <td><span class="badge badge-amber">Under Review</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</body>
+</html>

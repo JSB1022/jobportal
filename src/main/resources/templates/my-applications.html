@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Applications — Job Portal</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <div th:replace="~{nav-fragment :: nav}"></div>
+
+  <!-- HERO BAND -->
+  <div class="page-hero">
+    <h1>My Applications</h1>
+    <p>Track every role you've applied for</p>
+  </div>
+
+  <!-- BODY -->
+  <div class="page-body">
+
+    <!-- empty state -->
+    <div class="empty-state" th:if="${applications.isEmpty()}">
+      <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path d="M9 12h6M9 16h6M7 8h.01M5 20h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/>
+      </svg>
+      <h3>No applications yet</h3>
+      <p>Start applying to jobs and your history will appear here.</p>
+      <a href="/jobs-page" class="btn btn-primary" style="margin-top:18px;">Browse Jobs</a>
+    </div>
+
+    <!-- applications table (BUG FIX: added th:each, added null-safe checks) -->
+    <div class="table-wrap" th:if="${!applications.isEmpty()}">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Job Title</th>
+            <th>Company</th>
+            <th>Location</th>
+            <th>Salary</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="app, iterStat : ${applications}">
+            <td th:text="${iterStat.count}"></td>
+            <td>
+              <span style="font-weight:600;color:var(--slate-900);"
+                    th:text="${app.job != null ? app.job.title : 'N/A'}"></span>
+            </td>
+            <td th:text="${app.job != null ? app.job.company : 'N/A'}"></td>
+            <td th:text="${app.job != null ? app.job.location : 'N/A'}"></td>
+            <td th:text="${app.job != null ? app.job.salary : 'N/A'}"></td>
+            <td><span class="badge badge-amber">Pending Review</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div th:if="${!applications.isEmpty()}" style="margin-top:20px;text-align:right;">
+      <a href="/jobs-page" class="btn btn-outline">Browse More Jobs</a>
+    </div>
+
+  </div>
+
+</body>
+</html>
